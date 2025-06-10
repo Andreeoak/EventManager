@@ -14,4 +14,4 @@ Route::apiResource('events', EventController::class);
 
 
 Route::apiResource('events.attendees', AtendeeController::class)
-->scoped((["atendee"=>"event"]));
+->scoped((["atendee"=>"event"]))->except(['update', 'edit']);
