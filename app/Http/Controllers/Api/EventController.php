@@ -20,7 +20,10 @@ class EventController extends Controller
             'attendees',
             'attendees.user',
         ];
+
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
+
     /**
      * Display a listing of the resource.
      */
