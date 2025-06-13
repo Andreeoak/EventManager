@@ -3,10 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
-use App\Models\User;
-use App\Models\Event;
-use App\Models\Attendee;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,5 +31,9 @@ class AppServiceProvider extends ServiceProvider
             return $user->id === $event->user_id || $user->id === $attendee->user_id;
         });
         */ // <------Trocamos por Policies
+
+        RateLimiter::for ('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }
