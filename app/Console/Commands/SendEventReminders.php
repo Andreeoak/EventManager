@@ -37,7 +37,9 @@ class SendEventReminders extends Command
 
         $events->each(
             fn($event) => $event->attendees->each(
-                fn($attendee) => $this->info("Notifying the user {$attendee->user->id}")
+                fn($attendee) => $attendee->user->notify(
+                    new \App\Notifications\EventReminderNotification($event)
+                )
             )
         );
 
