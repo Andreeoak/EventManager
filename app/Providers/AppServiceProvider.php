@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        /*
         Gate::define('update-event', function (User $user, Event $event){
             return $user->id === $event->user_id;
         });
@@ -30,5 +31,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('delete-attendee', function (User $user, Event $event, Attendee $attendee){
             return $user->id === $event->user_id || $user->id === $attendee->user_id;
         });
+        */ // <------Trocamos por Policies
     }
 }

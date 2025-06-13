@@ -23,6 +23,7 @@ class EventController extends Controller
         ];
 
         $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(Event::class, 'event');
     }
 
     /**
@@ -75,7 +76,7 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        $this->authorize('update-event', $event);
+        //$this->authorize('update-event', $event);
 
         $event->update([
             ...$request->validate([
