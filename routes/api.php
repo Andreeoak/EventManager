@@ -16,4 +16,4 @@ Route::post('/login', [AuthController::class, 'login'])
 Route::apiResource('events', EventController::class);
 
 Route::apiResource('events.attendees', AtendeeController::class)
-->scoped((["atendee"=>"event"]))->except(['update', 'edit']);
+->scoped()->except(['update', 'edit']);
