@@ -13,6 +13,9 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login'])
     ->name('api.login');
 
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')
+    ->name('api.logout');
+
 Route::apiResource('events', EventController::class);
 
 Route::apiResource('events.attendees', AtendeeController::class)
