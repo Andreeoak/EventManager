@@ -18,6 +18,8 @@ class AtendeeController extends Controller
         $this->relations = [
             'user',
         ];
+
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
     /**
      * Display a listing of the resource.
@@ -60,6 +62,7 @@ class AtendeeController extends Controller
      */
     public function destroy(Event $event, Attendee $attendee)
     {
+        $this->authorize('delete-attendee', [$event, $attendee]);
         $attendee->delete();
         return response()->noContent(status: 204);
     }
