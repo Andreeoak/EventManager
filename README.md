@@ -42,7 +42,7 @@ Run migrations and seed data:
 
 ```bash
 php artisan migrate --seed
-php artisan queue:table
+php artisan app:send-event-reminders #run the custom comand to put all jobs in the queue
 php artisan queue:work  # to process email jobs
 ```
 
