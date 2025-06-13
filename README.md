@@ -1,61 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎉 Events Manager API (Laravel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A RESTful API built with Laravel 12 for managing **Events** and their **Attendees**. Includes:
 
-## About Laravel
+- 🛡️ **Bearer token authentication**
+- 🏠 **Ownership & Policy-based authorization**
+- ✉️ **Email reminders to attendees for imminent events**
+- 🗓️ **Scheduled commands & queue-based sending**
+- 🚦 **Rate limiting (throttling)**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ⚙️ Features
 
-## Learning Laravel
+- Standard CRUD operations for **Events**, including updating or deleting by owners.
+- Manage **Attendees**, including removal from guest lists.
+- Route protection via **Bearer token** authentication.
+- Custom **policies** ensuring users can only modify their own events/attendees.
+- **Email reminders** sent to attendees within 24h of event start.
+- Utilizes Laravel's **scheduling**, **queues**, and **throttling** out of the box.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🚀 Setup & Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Clone and install dependencies:
 
-## Laravel Sponsors
+```bash
+git clone https://github.com/youruser/events-manager-api.git
+cd events-manager-api
+composer install
+cp .env.example .env
+php artisan key:generate
+```
+then:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+docker compose up  #to confirgure on your localhost mysql and the mailpit
+```
+Run migrations and seed data:
 
-### Premium Partners
+```bash
+php artisan migrate --seed
+php artisan queue:table
+php artisan queue:work  # to process email jobs
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+🛂 Authentication
+Issue a token for a user:
+> POST /login?email=user@example.com&password=secret
 
-## Contributing
+You'll receive an XSRF-TOKEN cookie and Bearer token for authenticated requests.
+Use header:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+> Authorization: Bearer {token}
 
-## Code of Conduct
+📌 API Endpoints
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+| Method | Endpoint                           | Description                | Auth |
+| :----: | ---------------------------------- | -------------------------- | :--: |
+|   GET  | `/api/events`                      | List all events            |   ✅  |
+|   GET  | `/api/events/{id}`                 | Show specific event        |   ✅  |
+|  POST  | `/api/events`                      | Create a new event         |   ✅  |
+|   PUT  | `/api/events/{id}`                 | Update an existing event   |  ✅¹  |
+| DELETE | `/api/events/{id}`                 | Delete an existing event   |  ✅¹  |
+| DELETE | `/api/events/{id}/attendees/{aid}` | Remove attendee from event |  ✅¹  |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+¹ Requires ownership – enforced via Policies.
 
-## License
+🏛️ Policies & Authorization
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+EventPolicy: Allows only owners to update or delete their own events.
+AttendeePolicy: Allows removal only by event owners.
+Applies using:
+
+> $this->authorize('update', $event);
+
+<br>
+⏰ Scheduling & Queue
+
+bootstrap/app.php defines scheduling via withSchedule(...).
+
+Jobs are dispatched to the database queue and processed asynchronously by php artisan queue:work.
+
+<br>
+🚥 Rate Limiting (Throttling)
+
+All API routes are protected using Laravel’s throttle:60,1 middleware to prevent excessive requests.
+
+<br>
+🗂️ Database & Seeding
+
+MySQL with events, attendees, users tables.
+
+Seeder populates mock attendees with realistic emails.
+
+<br>
+🧪 Screenshots & Flow
+<br>
+Emails queued & sent: 
+![image](https://github.com/user-attachments/assets/b2aa3930-409a-4e67-a418-973aea0eca50) <br>
+![image](https://github.com/user-attachments/assets/590e0fe5-a1e1-4def-9831-53fc15e1258a)
+
+<br>
+
+Sample API request:
+![image](https://github.com/user-attachments/assets/d9fc8f7b-722c-4ef5-afb0-0226f4ec72b1) <br>
+![image](https://github.com/user-attachments/assets/e52d299e-6afb-4105-ad0d-f51435f892b1) <br>
+![image](https://github.com/user-attachments/assets/7ba77c56-99e2-4741-9f8e-929a326231a9)
+
+
+
